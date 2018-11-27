@@ -32,11 +32,20 @@ CREATE TABLE ORDERS(
     Car_Number VARCHAR(8),
     Car_Price DECIMAL(10,2),
     Order_Date DATE,
-    CONSTRAINT Buyer FOREIGN KEY(User_id) REFERENCES USERS(User_id),
-    CONSTRAINT Bought_Car FOREIGN KEY(Car_Number) REFERENCES CARS(PlateNumber)
+    CONSTRAINT Buyer FOREIGN KEY(User_id) REFERENCES USERS(User_id) ON DELETE CASCADE,
+    CONSTRAINT Bought_Car FOREIGN KEY(Car_Number) REFERENCES CARS(PlateNumber) ON DELETE CASCADE
 );
 
+CREATE TABLE title_types(
+	type_id INT NOT NULL PRIMARY KEY,
+    type_name VARCHAR(20)
+);
 
+CREATE TABLE titles(
+	title_type INT,
+    title_name VARCHAR(60),
+    CONSTRAINT TYPE_FK FOREIGN KEY(title_type) REFERENCES title_types(type_id)
+);
 
 
 INSERT INTO USERS(UserName,UserPassword) 

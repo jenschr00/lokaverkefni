@@ -1,24 +1,30 @@
 from bottle import *
-import urllib.request, json, os
+import pymysql
 
+database = pymysql.connect(host='tsuts.tskoli.is',user='0908012440',password='mypassword',db='0908012440_carsales',charset='utf8mb4',cursorclass=pymysql.cursors.DictCursor)
+curs=database.cursor()
+
+data = {'title':''}
 
 @route('/')
 def index():
-    return template("lok.tpl")
+    data['title']='Bílasala'
+    return template("lok.tpl",data)
 
-@route('/bill')
+@route('/bill',method="POST")
 def bill():
     n=request.forms.get('bilnumer')
-    #a="http://apis.is/car?number="+str(n)
-    with urllib.request.urlopen("http://apis.is/car?number={{n}}") as url:
-        data = json.loads(url.read().decode())
+    sqlquerry ="SELECT * FROM cars WHERE PlateNumber LIKE '%s'"%str("%"+n+"%")
+    curs.execute(sqlquerry)
+    result = curs.fetchall()
+    print(result)
     return template("lok2.tpl")
 
 @error(404)
 def villa(error):
     return("vefsíða ekki til")
 
-@route('/static/<skra>')
+@route('/static/<skra:path>')
 def static_dot(skra):
     return static_file(skra, root='./')
 
