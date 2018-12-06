@@ -9,7 +9,7 @@ Python Standard Library.
 
 Homepage and documentation: http://bottlepy.org/
 
-Copyright (c) 2009-2018, Marcel Hellkamp.
+Copyright (c) 2017, Marcel Hellkamp.
 License: MIT (see LICENSE for details)
 """
 
@@ -172,6 +172,7 @@ def touni(s, enc='utf8', err='strict'):
 
 tonat = touni if py3k else tob
 
+# 3.2 fixes cgi.FieldStorage to accept bytes (which makes a lot of sense).
 
 
 # A bug in functools causes it to break if the wrapper is an instance method
@@ -644,7 +645,7 @@ class Bottle(object):
         })
 
         if kwargs.get('catchall') is False:
-            depr(0, 13, "Bottle(catchall) keyword argument.",
+            depr(0,13, "Bottle(catchall) keyword argument.",
                         "The 'catchall' setting is now part of the app "
                         "configuration. Fix: `app.config['catchall'] = False`")
             self.config['catchall'] = False
@@ -1590,7 +1591,7 @@ class BaseRequest(object):
             raise AttributeError("Attribute already defined: %s" % name)
         self.environ[key] = value
 
-    def __delattr__(self, name):
+    def __delattr__(self, name, value):
         try:
             del self.environ['bottle.request.ext.%s' % name]
         except KeyError:
@@ -1602,13 +1603,11 @@ def _hkey(key):
         raise ValueError("Header names must not contain control characters: %r" % key)
     return key.title().replace('_', '-')
 
-
 def _hval(value):
     value = tonat(value)
     if '\n' in value or '\r' in value or '\0' in value:
         raise ValueError("Header value must not contain control characters: %r" % value)
     return value
-
 
 class HeaderProperty(object):
     def __init__(self, name, reader=None, writer=None, default=''):
@@ -1678,10 +1677,8 @@ class BaseResponse(object):
         copy.status = self.status
         copy._headers = dict((k, v[:]) for (k, v) in self._headers.items())
         if self._cookies:
-            cookies = copy._cookies = SimpleCookie()
-            for k,v in self._cookies.items():
-                cookies[k] = v.value
-                cookies[k].update(v) # also copy cookie attributes
+            copy._cookies = SimpleCookie()
+            copy._cookies.load(self._cookies.output(header=''))
         return copy
 
     def __iter__(self):
@@ -1808,7 +1805,7 @@ class BaseResponse(object):
             Additionally, this method accepts all RFC 2109 attributes that are
             supported by :class:`cookie.Morsel`, including:
 
-            :param maxage: maximum age in seconds. (default: None)
+            :param max_age: maximum age in seconds. (default: None)
             :param expires: a datetime object or UNIX timestamp. (default: None)
             :param domain: the domain that is allowed to read the cookie.
               (default: current domain)
@@ -1816,12 +1813,12 @@ class BaseResponse(object):
             :param secure: limit the cookie to HTTPS connections (default: off).
             :param httponly: prevents client-side javascript to read this cookie
               (default: off, requires Python 2.6 or newer).
-            :param samesite: disables third-party use for a cookie.
+            :param same_site: disables third-party use for a cookie.
               Allowed attributes: `lax` and `strict`.
               In strict mode the cookie will never be sent.
               In lax mode the cookie is only sent with a top-level GET request.
 
-            If neither `expires` nor `maxage` is set (default), the cookie will
+            If neither `expires` nor `max_age` is set (default), the cookie will
             expire at the end of the browser session (as soon as the browser
             window is closed).
 
@@ -1842,9 +1839,8 @@ class BaseResponse(object):
         if not self._cookies:
             self._cookies = SimpleCookie()
 
-        # Monkey-patch Cookie lib to support 'SameSite' parameter
-        # https://tools.ietf.org/html/draft-west-first-party-cookies-07#section-4.1
-        Morsel._reserved.setdefault('samesite', 'SameSite')
+        # To add "SameSite" cookie support.
+        Morsel._reserved['same-site'] = 'SameSite'
 
         if secret:
             if not isinstance(value, basestring):
@@ -1865,8 +1861,7 @@ class BaseResponse(object):
         self._cookies[name] = value
 
         for key, value in options.items():
-            if key in ('max_age', 'maxage'): # 'maxage' variant added in 0.13
-                key = 'max-age'
+            if key == 'max_age':
                 if isinstance(value, timedelta):
                     value = value.seconds + value.days * 24 * 3600
             if key == 'expires':
@@ -1875,13 +1870,12 @@ class BaseResponse(object):
                 elif isinstance(value, (int, float)):
                     value = time.gmtime(value)
                 value = time.strftime("%a, %d %b %Y %H:%M:%S GMT", value)
-            if key in ('same_site', 'samesite'): # 'samesite' variant added in 0.13
-                key = 'samesite'
-                if value.lower() not in ('lax', 'strict'):
-                    raise CookieError("Invalid value samesite=%r (expected 'lax' or 'strict')" % (key,))
+            # check values for SameSite cookie, because it's not natively supported by http.cookies.
+            if key == 'same_site' and value.lower() not in ('lax', 'strict'):
+                raise CookieError("Invalid attribute %r" % (key,))
             if key in ('secure', 'httponly') and not value:
                 continue
-            self._cookies[name][key] = value
+            self._cookies[name][key.replace('_', '-')] = value
 
     def delete_cookie(self, key, **kwargs):
         """ Delete a cookie. Be sure to use the same `domain` and `path`
@@ -2814,18 +2808,14 @@ def redirect(url, code=None):
     raise res
 
 
-def _file_iter_range(fp, offset, bytes, maxread=1024 * 1024, close=False):
-    """ Yield chunks from a range in a file, optionally closing it at the end.
-        No chunk is bigger than maxread. """
+def _file_iter_range(fp, offset, bytes, maxread=1024 * 1024):
+    """ Yield chunks from a range in a file. No chunk is bigger than maxread."""
     fp.seek(offset)
     while bytes > 0:
         part = fp.read(min(bytes, maxread))
-        if not part:
-            break
+        if not part: break
         bytes -= len(part)
         yield part
-    if close:
-        fp.close()
 
 
 def static_file(filename, root,
@@ -2928,7 +2918,7 @@ def static_file(filename, root,
         offset, end = ranges[0]
         headers["Content-Range"] = "bytes %d-%d/%d" % (offset, end - 1, clen)
         headers["Content-Length"] = str(end - offset)
-        if body: body = _file_iter_range(body, offset, end - offset, close=True)
+        if body: body = _file_iter_range(body, offset, end - offset)
         return HTTPResponse(body, status=206, **headers)
     return HTTPResponse(body, **headers)
 
@@ -4014,6 +4004,7 @@ class SimpleTemplate(BaseTemplate):
 
 
 class StplSyntaxError(TemplateError):
+
     pass
 
 
@@ -4024,7 +4015,7 @@ class StplParser(object):
     # This huge pile of voodoo magic splits python code into 8 different tokens.
     # We use the verbose (?x) regex mode to make this more manageable
 
-    _re_tok = _re_inl = r'''(
+    _re_tok = _re_inl = r'''(?mx)(        # verbose and dot-matches-newline mode
         [urbURB]*
         (?:  ''(?!')
             |""(?!")
@@ -4065,12 +4056,6 @@ class StplParser(object):
     _re_split = r'''(?m)^[ \t]*(\\?)((%(line_start)s)|(%(block_start)s))'''
     # Match inline statements (may contain python strings)
     _re_inl = r'''%%(inline_start)s((?:%s|[^'"\n]+?)*?)%%(inline_end)s''' % _re_inl
-
-    # add the flag in front of the regexp to avoid Deprecation warning (see Issue #949)
-    # verbose and dot-matches-newline mode
-    _re_tok = '(?mx)' + _re_tok
-    _re_inl = '(?mx)' + _re_inl
-
 
     default_syntax = '<% %> % {{ }}'
 
@@ -4155,18 +4140,15 @@ class StplParser(object):
                     self.paren_depth -= 1
                 code_line += _pc
             elif _blk1:  # Start-block keyword (if/for/while/def/try/...)
-                code_line = _blk1
+                code_line, self.indent_mod = _blk1, -1
                 self.indent += 1
-                self.indent_mod -= 1
             elif _blk2:  # Continue-block keyword (else/elif/except/...)
-                code_line = _blk2
-                self.indent_mod -= 1
+                code_line, self.indent_mod = _blk2, -1
+            elif _end:  # The non-standard 'end'-keyword (ends a block)
+                self.indent -= 1
             elif _cend:  # The end-code-block template token (usually '%>')
                 if multiline: multiline = False
                 else: code_line += _cend
-            elif _end:
-                self.indent -= 1
-                self.indent_mod += 1
             else:  # \n
                 self.write_code(code_line.strip(), comment)
                 self.lineno += 1
