@@ -23,7 +23,7 @@ def skoda():
      sqlquerry ="SELECT * FROM cars"
      curs.execute(sqlquerry)
      result = curs.fetchall()
-     return template("lok4.tpl", result=result,data=data)
+     return template("lok4.tpl", results=result,data=data)
 
 @route('/sina',method="POST")
 def sina():
@@ -31,7 +31,7 @@ def sina():
     sqlquerry ="SELECT * FROM cars WHERE PlateNumber LIKE '%s'"%str("%"+n+"%")
     curs.execute(sqlquerry)
     result = curs.fetchall()
-    return template("sina.tpl",result=result,data=data)
+    return template("sina.tpl",results=result,data=data)
 
 @route('/solur')
 def seldir():
@@ -43,7 +43,7 @@ def seldir():
 @route('/kaupa', method='POST')
 def kaupa():
      plate = request.forms.get('PlateNumber')
-     sqlquerry = "INSERT INTO Orders(Car_Number,Car_Price,Order_Date) VALUES ('%s',(SELECT Price FROM CARS WHERE PlateNumber = '%s'),'%s')"%(plate,plate,'{0:%Y-%m-%d}'.format(datetime.datetime.now()))
+     sqlquerry = "INSERT INTO Orders VALUES ((SELECT User_id FROM USERS WHERE UserName = '%s'),'%s',(SELECT Price FROM CARS WHERE PlateNumber = '%s'),'%s')"%(data['User'],plate,plate,'{0:%Y-%m-%d}'.format(datetime.datetime.now()))
      curs.execute(sqlquerry)
      database.commit()
      sqldelete = "DELETE FROM CARS WHERE PlateNumber = '%s'"%(plate)
@@ -183,7 +183,7 @@ def signup():
                    '<a href="/Signup" class="button">Signup</a>'
 
         elif not userflag:
-                makenewsql = "INSERT INTO users(UserName,Users_Name,UserPassword) VALUES('%s','%s','%s')"%(username, name, password)
+                makenewsql = "INSERT INTO users(UserName,Users_Name,UserPassword,USER_TYPE) VALUES('%s','%s','%s',%s)"%(username, name, password,'Muggles')
                 curs.execute(makenewsql)
                 database.commit()
                 redirect('/login')

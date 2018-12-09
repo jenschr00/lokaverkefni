@@ -2,8 +2,9 @@
 <html>
 <head>
 	<title></title>
+	<link rel="stylesheet" type="text/css" href="/static/skeleton.css">
 </head>
-<body>
+<body class="blackback">
 <h3 class="u-full-width" style="text-align:center;">Login</h3>
 <a href="/" class="button">Home</a>
 <div class="u-full-width" style="text-align: center;">
