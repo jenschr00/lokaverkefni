@@ -201,8 +201,8 @@ def signup():
 def villa(error):
     return("vefsíða ekki til")
 
-@route('/static/<skra>')
-def static_dot(skra):
-    return static_file(skra, root='./')
+@route('/Myndir/<filename>')
+def server_static(filename):
+    return static_file(filename, root="./Myndir")
 
 run(host='0.0.0.0', port=argv[1])
