@@ -105,8 +105,8 @@ def processlogin():
                        userflag = False
 
         if not userflag:
-             return '<head><link rel="stylesheet" type="text/css" href="/normalize.css">' \
-                  '<link rel="stylesheet" type="text/css" href="/skeleton.css"></head>' \
+             return '<head><link rel="stylesheet" type="text/css" href="/static/normalize.css">' \
+                  '<link rel="stylesheet" type="text/css" href="/static/skeleton.css"></head>' \
                   '<h3 class="u-full-width" style="text-align:center;">This Username dosen\'t exist</h3>' \
                   '<a href="/login" class="button">Login</a>'
 
@@ -145,8 +145,8 @@ def processlogin():
                  data['Usertype'] = "Muggles"
                  redirect('/')
              else:
-                  return '<head><link rel="stylesheet" type="text/css" href="/normalize.css">' \
-                       '<link rel="stylesheet" type="text/css" href="/skeleton.css"></head>' \
+                  return '<head><link rel="stylesheet" type="text/css" href="/static/normalize.css">' \
+                       '<link rel="stylesheet" type="text/css" href="/static/skeleton.css"></head>' \
                        '<h3 class="u-full-width" style="text-align:center;">This Password is wrong</h3> ' \
                        '<a href="/login" class="button">Login</a>'
 
@@ -171,14 +171,14 @@ def signup():
         userflag = False
         for i in table_data_user:
             for x in i:
-                if username == i[x]:
+                if username == x:
                     userflag = True
                 else:
                     userflag = False
 
         if userflag:
-            return '<head><link rel="stylesheet" type="text/css" href="/normalize.css">' \
-                   '<link rel="stylesheet" type="text/css" href="/skeleton.css"></head>' \
+            return '<head><link rel="stylesheet" type="text/css" href="/static/normalize.css">' \
+                   '<link rel="stylesheet" type="text/css" href="/static/skeleton.css"></head>' \
                    '<h3 class="u-full-width" style="text-align:center;">This Username already exist</h3>' \
                    '<a href="/Signup" class="button">Signup</a>'
 
