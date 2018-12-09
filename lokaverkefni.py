@@ -200,7 +200,7 @@ def signup():
 def villa(error):
     return("vefsíða ekki til")
 
-@route('/Myndir/<filename:path>')
+@route('/static/<filename:path>')
 def server_static(filename):
     return static_file(filename, root="./Myndir/")
 
