@@ -1,0 +1,237 @@
+/*
+  ========================================
+  Body
+  ========================================
+*/
+body, html {
+  height: 100%;
+  margin: 0;
+  padding: 0;
+  background:black;
+}
+.asd{
+  padding-bottom: 20%;
+  background-color:yellow;
+  margin-top:-0%;
+        
+}
+/*
+  ========================================
+  Fonts
+  ========================================
+*/
+h1 {
+  padding: 7em 0 0 0;
+  margin: 0;
+  text-align: center;
+  font-family: 'Fjalla One', sans-serif;
+  font-size: 3em;
+    color: floralwhite;
+}
+h3 {
+  font-family: 'Fjalla One', sans-serif;
+  text-align: center;
+  color: floralwhite;
+}
+p {
+  font-size: 1em;
+  font-family: 'Ubuntu', sans-serif;
+}
+h2 {
+  font-family: 'Francois One', sans-serif;
+}
+/*
+  ========================================
+  parallax
+  ========================================
+*/
+.parallax {
+    background-image: url("mynd2.jpg");
+    background-size: 100% auto; 
+    min-height: 799px;
+    min-width: 1000px;
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+.parallax2 {
+    background-image: url("mynd7.jpg");
+    background-size: 100% auto; 
+    min-height: 500px;
+    min-width: 1000px;
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+.parallax3 {
+    background-image: url("mynd8.jpg");
+    background-size: 100% auto; 
+    min-height: 500px;
+    min-width: 1000px;
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+.parallax4 {
+    background-image: url("mynd9.jpg");
+    background-size: 100% auto; 
+    min-height: 500px;
+    min-width: 1000px;
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+.parallax5 {
+    background-image: url("mynd10.jpg");
+    background-size: 100% auto; 
+    min-height:799px;
+    min-width: 1000px;
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+}
+/*
+  ========================================
+  glærur
+  ========================================
+*/
+.glæra1 {
+  height:300px;
+  font-size:2em;
+  background-color: black;
+  width: 100%;
+  margin-top:-10%;
+  padding-bottom:-50%;
+  color:white;
+ }
+.glæra2 {
+  height: 650px;
+  font-size: 2em;
+  background-color: black;
+  width: 100%;
+  margin-top:-10%;
+  padding-bottom:-50%;
+  
+}
+.glæra3 {
+  height: 575px;
+  font-size: 2em;
+  background-color: black;
+  width: 100%;
+  margin-top:-10%;
+  padding-bottom:-50%;
+  
+}
+.glæra4 {
+  height: 400px;
+  font-size: 2em;
+  background-color: black;
+  width: 100%;
+  margin-top:-10%;
+  padding-bottom:-50%;
+
+}
+.glæra5{
+  height: 300px;
+  font-size:1.5em;
+  background-color: black;
+  width: 100%;
+  margin-top:-10%;
+  padding-bottom:-50%;
+ 
+}
+/*
+  ========================================
+  Header
+  ========================================
+*/
+
+/*
+  ========================================
+  Flexbox
+  ========================================
+*/
+.box1 {
+  width: 100%;
+  margin-top: -1em;
+}
+.box2 {
+  width: 100%;
+  margin-top: 0%;
+
+}
+.box3 {
+  width: 40%;
+  margin-top: -1%;
+  text-align: left;
+  float: left;
+  padding: 0 0 0 3em;
+
+}
+/*
+  ========================================
+  myndir
+  ========================================
+*/
+.mynd1 {
+  float:right;
+  border-radius: 50%;
+  text-align: right;
+  margin: 0 0 0 22em;
+  margin-top: -2em;
+  height: 6em;
+  width: 6em
+      
+  
+}
+.mynd2 {
+  height: 9em;
+  width: 14em;
+  text-align: right;
+  padding: 0 0 0 3em;
+}
+/*
+  ========================================
+  Video
+  ========================================
+*/
+.Video {
+   width:20em;
+   height: 10em;   
+/*
+  ========================================
+  Google Maps
+  ========================================
+*/
+.kort {
+  width: 22em;
+  height: 14.5em;
+  float: left;
+}
+
+/*
+  ========================================
+  Footer
+  ========================================
+*/
+
+.footerside {
+  color: pink;
+
+}
+
+footer small {
+  float: left;
+  font-weight: 400;
+}
+
+.snap {
+  text-align: right;
+  padding: 0 0 0 3em;
+}
+    
