@@ -1,1 +1,1 @@
-'web: python ./lokaverkefni.py $PORT'
+web: python ./lokaverkefni.py $PORT
