@@ -205,4 +205,4 @@ def villa(error):
 def static_dot(skra):
     return static_file(skra, root='./')
 
-run(host='0.0.0.0', port=argv[0])
+run(host='0.0.0.0', port=argv[1])
