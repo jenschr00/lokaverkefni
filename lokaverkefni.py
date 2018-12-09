@@ -183,7 +183,7 @@ def signup():
                    '<a href="/Signup" class="button">Signup</a>'
 
         elif not userflag:
-                makenewsql = "INSERT INTO users(UserName,Users_Name,UserPassword,USER_TYPE) VALUES('%s','%s','%s',%s)"%(username, name, password,'Muggles')
+                makenewsql = "INSERT INTO users(UserName,Users_Name,UserPassword,USER_TYPE) VALUES('%s','%s','%s','%s')"%(username, name, password,'Muggles')
                 curs.execute(makenewsql)
                 database.commit()
                 redirect('/login')
