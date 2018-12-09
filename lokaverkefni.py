@@ -2,6 +2,7 @@ from bottle import *
 import urllib.request, json, os
 import pymysql
 import datetime
+from sys import argv
 
 database = pymysql.connect(host='tsuts.tskoli.is',user='0908012440',password='mypassword',db='0908012440_carsales',charset='utf8mb4',cursorclass=pymysql.cursors.DictCursor)
 curs = database.cursor()
@@ -204,4 +205,4 @@ def villa(error):
 def static_dot(skra):
     return static_file(skra, root='./')
 
-run(host='localhost', port=8090)
+run(host='0.0.0.0', port=argv[0])
