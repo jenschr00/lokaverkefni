@@ -91,7 +91,7 @@ def processlogin():
      #try:
         form_data_user = request.forms.get("username")
         form_data_password = request.forms.get("password")
-        sqluser = ("SELECT UserName FROM users WHERE UserName = '%s'") % form_data_user
+        sqluser = "SELECT UserName FROM users WHERE UserName = '%s'"% form_data_user
         curs.execute(sqluser)
         table_data_user = curs.fetchall()
         userflag = False
@@ -111,7 +111,7 @@ def processlogin():
                   '<a href="/login" class="button">Login</a>'
 
         elif userflag:
-             sqlpass = ("SELECT UserPassword FROM users WHERE UserName = '%s'" % form_data_user)
+             sqlpass = "SELECT UserPassword FROM users WHERE UserName = '%s'" % form_data_user
              curs.execute(sqlpass)
              table_data_pass = curs.fetchall()
 
@@ -165,7 +165,7 @@ def signup():
         name=request.forms.get('name')
         username=request.forms.get('username')
         password=request.forms.get('password')
-        sqluser = ("SELECT UserName FROM users WHERE UserName = '%s'") % username
+        sqluser = "SELECT UserName FROM users WHERE UserName = '%s'"% username
         curs.execute(sqluser)
         table_data_user = curs.fetchall()
         userflag = False
