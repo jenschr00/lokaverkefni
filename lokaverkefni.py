@@ -4,25 +4,26 @@ import pymysql
 import datetime
 
 database = pymysql.connect(host='tsuts.tskoli.is',user='0908012440',password='mypassword',db='0908012440_carsales',charset='utf8mb4',cursorclass=pymysql.cursors.DictCursor)
-curs=database.cursor()
+curs = database.cursor()
 
-data = {'title':''}
+data = {'title': '','Usertype':'','User':''}
 
 
 @route('/')
 def index():
      data['title']='Bílasala'
-     return template("lok.tpl",data)
+     return template("lok.tpl",data=data)
 
 @route('/selja')
 def selja():
     return template("lok3.tpl")
+
 @route('/skoda')
 def skoda():
      sqlquerry ="SELECT * FROM cars"
      curs.execute(sqlquerry)
      result = curs.fetchall()
-     return template("lok4.tpl", result=result)
+     return template("lok4.tpl", result=result,data=data)
 
 @route('/sina',method="POST")
 def sina():
@@ -30,8 +31,15 @@ def sina():
     sqlquerry ="SELECT * FROM cars WHERE PlateNumber LIKE '%s'"%str("%"+n+"%")
     curs.execute(sqlquerry)
     result = curs.fetchall()
-    print(result)
-    return template("sina.tpl",result=result)
+    return template("sina.tpl",result=result,data=data)
+
+@route('/solur')
+def seldir():
+    sqlquerry = "SELECT * FROM ORDERS"
+    curs.execute(sqlquerry)
+    result = curs.fetchall()
+    return template("lok2.tpl",results=result)
+
 @route('/kaupa', method='POST')
 def kaupa():
      plate = request.forms.get('PlateNumber')
@@ -41,9 +49,10 @@ def kaupa():
      sqldelete = "DELETE FROM CARS WHERE PlateNumber = '%s'"%(plate)
      curs.execute(sqldelete)
      database.commit()
+     redirect('/')
      
      
-@route('/sqlimport' , method="POST")
+@route('/sqlimport', method="POST")
 def sqlimport():
      nafn=request.forms.get('nafn')
      bilnumer=request.forms.get('bilnumer')
@@ -63,9 +72,14 @@ def sqlimport():
           "VALUES ('%s','%s','%s','%s','%s','%d','%d','%d','%d')"%(nafn,bilnumer,tegund,undirtegund,litur,int(sjalfskiptur),int(beinskiptur),int(argerd),int(verd))
      curs.execute(sql)
      database.commit()
+     redirect('/')
+
 @route('/login')
 def login():
-    return template('login.tpl',title='Login')
+    if data['User'] == '':
+        return template('login.tpl', title='Login')
+    else:
+        redirect('/')
 
 @route('/Signup')
 def signup():
@@ -74,82 +88,110 @@ def signup():
 
 @route('/loginprocess', method='POST')
 def processlogin():
-     try:
-          form_data_user = request.forms.get("username")
-          form_data_password = request.forms.get("password")
-          sqluser = ("SELECT UserName FROM users WHERE UserName = '%s'" % form_data_user)
-          cursor.execute(sqluser)
-          table_data_user = cursor.fetchall()
-          userflag = False
+     #try:
+        form_data_user = request.forms.get("username")
+        form_data_password = request.forms.get("password")
+        sqluser = ("SELECT UserName FROM users WHERE UserName = '%s'" % form_data_user)
+        curs.execute(sqluser)
+        table_data_user = curs.fetchall()
+        userflag = False
 
-          for i in table_data_user:
-               for x in i:
-                    if form_data_user == i[x]:
-                         userflag = True
-                    else:
-                         print(x)
-                         userflag = False
+        for i in table_data_user:
+             for x in i:
+                  if form_data_user == i[x]:
+                       userflag = True
+                  else:
+                       print(x)
+                       userflag = False
 
-          if not userflag:
-               return '<head><link rel="stylesheet" type="text/css" href="/normalize.css">' \
-                    '<link rel="stylesheet" type="text/css" href="/skeleton.css"></head>' \
-                    '<h3 class="u-full-width" style="text-align:center;">This Username dosen\'t exist</h3>' \
-                    '<a href="/login" class="button">Login</a>'
+        if not userflag:
+             return '<head><link rel="stylesheet" type="text/css" href="/normalize.css">' \
+                  '<link rel="stylesheet" type="text/css" href="/skeleton.css"></head>' \
+                  '<h3 class="u-full-width" style="text-align:center;">This Username dosen\'t exist</h3>' \
+                  '<a href="/login" class="button">Login</a>'
 
-          elif userflag:
-               sqlpass = ("SELECT UserPassword FROM users WHERE UserName = '%s'" % form_data_user)
-               curs.execute(sqlpass)
-               table_data_pass = curs.fetchall()
+        elif userflag:
+             sqlpass = ("SELECT UserPassword FROM users WHERE UserName = '%s'" % form_data_user)
+             curs.execute(sqlpass)
+             table_data_pass = curs.fetchall()
 
-               sqladmin = "SELECT USER_TYPE FROM USERS WHERE UserName = '%s'"%form_data_user
-               curs.execute(sqladmin)
-               usertype = curs.fetchall()
-            
-               passflag = False
+             sqladmin = "SELECT USER_TYPE FROM USERS WHERE UserName = '%s'"%form_data_user
+             curs.execute(sqladmin)
+             usertype = curs.fetchall()
 
-               for i in table_data_pass:
-                    for x in i:
-                         if form_data_password == i[x]:
-                              passflag = True
-                         else:
-                              passflag = False
+             passflag = False
 
-               adminflag = False
-               for i in usertype:
-                    for x in i:
-                         if i[x] == 'Admin':
-                              adminflag == True
-                         else:
-                              adminflag == False
+             for i in table_data_pass:
+                  for x in i:
+                       if form_data_password == i[x]:
+                            passflag = True
+                       else:
+                            passflag = False
 
-               if passflag and adminflag == True:
-                    return template('admin.tpl',data=alldata,title='Admin')
-               elif passflag and adminflag == False:
-                    return template('user.tpl',title=form_data_user)
-               else:
-                    return '<head><link rel="stylesheet" type="text/css" href="/normalize.css">' \
-                         '<link rel="stylesheet" type="text/css" href="/skeleton.css"></head>' \
-                         '<h3 class="u-full-width" style="text-align:center;">This Password is wrong</h3> ' \
-                         '<a href="/login" class="button">Login</a>'
-     except:
-          abort(404)
+             adminflag = False
+             for i in usertype:
+                  for x in i:
+                       if i[x] == 'Admin':
+                            adminflag = True
+                       else:
+                            adminflag = False
+
+             if passflag and adminflag == True:
+                  data['User'] = form_data_user
+                  data['Usertype'] = "Admin"
+                  redirect('/')
+             elif passflag and adminflag == False:
+                 data['User'] = form_data_user
+                 data['Usertype'] = "Muggles"
+                 redirect('/')
+             else:
+                  return '<head><link rel="stylesheet" type="text/css" href="/normalize.css">' \
+                       '<link rel="stylesheet" type="text/css" href="/skeleton.css"></head>' \
+                       '<h3 class="u-full-width" style="text-align:center;">This Password is wrong</h3> ' \
+                       '<a href="/login" class="button">Login</a>'
+
+     #except:
+          #abort(404)
+@route('/logout')
+def logout():
+    data['Usertype'] = ''
+    data['User'] = ''
+    redirect('/')
 
 
 @route('/signupprocess', method='POST')
 def signup():
-    try:
+    #try:
         name=request.forms.get('name')
         username=request.forms.get('username')
         password=request.forms.get('password')
-        makenewsql = "INSERT INTO users(UserName,Users_Name,UserPassword) VALUES('%s','%s','%s')"%(username,name,password)
-        cursor.execute(makenewsql)
-        database.commit()
-        redirect('/login')
-    except:
-        return '<head><link rel="stylesheet" type="text/css" href="/normalize.css">' \
-                '<link rel="stylesheet" type="text/css" href="/skeleton.css"></head>' \
-                '<h3 class="u-full-width" style="text-align:center;">This Username already exists</h3>' \
-                '<a href="/Signup" class="button">Signup</a>'
+        sqluser = ("SELECT UserName FROM users WHERE UserName = '%s'" % username)
+        curs.execute(sqluser)
+        table_data_user = curs.fetchall()
+        userflag = False
+        for i in table_data_user:
+            for x in i:
+                if username == i[x]:
+                    userflag = True
+                else:
+                    userflag = False
+
+        if userflag:
+            return '<head><link rel="stylesheet" type="text/css" href="/normalize.css">' \
+                   '<link rel="stylesheet" type="text/css" href="/skeleton.css"></head>' \
+                   '<h3 class="u-full-width" style="text-align:center;">This Username already exist</h3>' \
+                   '<a href="/Signup" class="button">Signup</a>'
+
+        elif not userflag:
+                makenewsql = "INSERT INTO users(UserName,Users_Name,UserPassword) VALUES('%s','%s','%s')"%(username, name, password)
+                curs.execute(makenewsql)
+                database.commit()
+                redirect('/login')
+    #except:
+        #return '<head><link rel="stylesheet" type="text/css" href="/normalize.css">' \
+                #'<link rel="stylesheet" type="text/css" href="/skeleton.css"></head>' \
+                #'<h3 class="u-full-width" style="text-align:center;">This Username already exists</h3>' \
+                #'<a href="/Signup" class="button">Signup</a>'
      
 
  

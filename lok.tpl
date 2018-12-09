@@ -16,9 +16,16 @@
   </div>
 
   <div class="glæra1">
-    <a href="/skoda">Kaupa Bíl</a><br>
-    <a href="/selja">Selja Bíl</a><br>
-    
+    %if data['Usertype'] == '':
+        <h3>Skráðu þig inn fyrir valmöguleika</h3>
+    %elif data['Usertype'] == 'Admin':
+        <a href="/solur">Seldir Bílar</a><br>
+        <a href="/skoda">Kaupa Bíl</a><br>
+        <a href="/selja">Selja Bíl</a><br>
+    %else:
+        <a href="/skoda">Kaupa Bíl</a><br>
+        <a href="/selja">Selja Bíl</a><br>
+    %end
 
   </form> 
   </div>
@@ -27,7 +34,11 @@
   </div>
 
   <div class="glæra2">
-    <a class="button" href="login" style="display: inline-block;">Login</a>
+    %if data['User'] == '':
+        <a class="button" href="login" style="display: inline-block;">Login</a>
+    %else:
+        <a href="/logout">Logout</a>
+    %end
   <a class="button" href="Signup" style="display: inline-block;">Signup</a>
   </div>
       
