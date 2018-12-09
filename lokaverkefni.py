@@ -1,5 +1,4 @@
 from bottle import *
-import urllib.request, json, os
 import pymysql
 import datetime
 from sys import argv
